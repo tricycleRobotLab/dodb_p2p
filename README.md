@@ -13,6 +13,28 @@ it selects a file from the list and hit the download button. the other peers hol
 client. the client then reassembles the chunks and and make a single file.if the client wants to be a server it needs to upload its file make it
 availabel for other clients use.
 
+             Database Design 
+
+create or replace database p2p_test;
+use p2p_test;
+
+create or replace table file_list(
+		file_name varchar,
+		ip_address decimal, 
+		port number,
+		hash varchar,
+		file_size decimal,
+		primary key (hash));
+		
+create or replace table chunk_list(
+		chunk_name varchar,
+		ip_address decimal,
+		port number,
+		hash varchar,
+		foreign key (hash));
+		
+		
+
 group memebers 
   biniyam teshome
   selamu tadesse
