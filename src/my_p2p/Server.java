@@ -33,7 +33,7 @@ import java.util.List;
 public class Server {
     private static final int SERVER_PORT = 4700;
     private static final int CHUNK_SIZE = 512; //chunk size is 512kb
-    static final String DATABASE_URL = "jdbc:mysql://localhost/p2p_test";
+    static final String DATABASE_URL = "jdbc:mysql:replication://localhost:3306,localhost:3333/p2p_test";
     private static Connection connection = null;
     private Statement stmt = null;
     private ResultSet resultSet = null;
@@ -45,7 +45,7 @@ public class Server {
     private DataOutputStream dos;
     
     private int rows_returned;
-   private ArrayList path_map;
+    private ArrayList path_map;
     
     public Server(){
         
@@ -72,6 +72,7 @@ public class Server {
     public void Register(String file_name,String ip_address,int port,String hash, int file_size){
         try{ 
             stmt = connection.createStatement();
+            connection.setReadOnly(false);
             String sql = "insert into file_list values('" + file_name + "','" + ip_address + "'," + port + ",'" + hash + "'," + file_size +")";  
             int result = stmt.executeUpdate(sql);
             if(result > 0){
@@ -85,6 +86,7 @@ public class Server {
         }
         try{
            stmt = connection.createStatement();
+           connection.setReadOnly(false);
            String chunk = file_name;/*.substring(file_name.lastIndexOf("\\"));*/
            int i;
            for( i = 0; i < file_size / CHUNK_SIZE; i++){
@@ -107,6 +109,7 @@ public class Server {
     public void list_Record(){
         try{
             stmt = connection.createStatement();
+            connection.setReadOnly(true);
             String sql = "Select * from file_list group by hash order by file_name desc";
             resultSet = stmt.executeQuery(sql);
             
@@ -143,6 +146,7 @@ public class Server {
             try{
                
                 stmt = connection.createStatement();
+                connection.setReadOnly(true);
                 //String sql = "Select chunk_name from chunk_list where hash = \"" + client_hash + "\"";
                 String sql = "Select chunk_name, ip_address, port from chunk_list where hash = \"" + client_hash + "\"";
                 resultSet = stmt.executeQuery(sql);
@@ -176,6 +180,7 @@ public class Server {
         String status = null;
         try{
             stmt = connection.createStatement();
+            connection.setReadOnly(false);
             String sql = "Delete from file_list where ip_address = '" + ip_address + "'";
             stmt.executeUpdate(sql);
         }catch(Exception e){
